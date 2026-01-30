@@ -151,6 +151,8 @@ namespace Csla
 
     /// <summary>
     /// Manager method for synchronous Create operation; delegating to async version
+    /// WARNING: This method uses blocking async (.Result) which can cause deadlocks in cloud environments.
+    /// For cloud deployments, prefer using CreateAsync() instead.
     /// </summary>
     /// <param name="objectType">The type of object to instantiate and initialise</param>
     /// <param name="criteria">The criteria required to perform the creation operation</param>
@@ -159,7 +161,7 @@ namespace Csla
     {
       try
       {
-        return DoCreateAsync(objectType, criteria, true).Result;
+        return DoCreateAsync(objectType, criteria, true).ConfigureAwait(false).GetAwaiter().GetResult();
       }
       catch (AggregateException ex)
       {
@@ -263,6 +265,8 @@ namespace Csla
 
     /// <summary>
     /// Manager method for synchronous fetch operation; delegating to async version
+    /// WARNING: This method uses blocking async (.Result) which can cause deadlocks in cloud environments.
+    /// For cloud deployments, prefer using FetchAsync() instead.
     /// </summary>
     /// <param name="objectType">The type of object to instantiate and load</param>
     /// <param name="criteria">The criteria required to perform the load operation</param>
@@ -271,7 +275,7 @@ namespace Csla
     {
       try
       {
-        return DoFetchAsync(objectType, criteria, true).Result;
+        return DoFetchAsync(objectType, criteria, true).ConfigureAwait(false).GetAwaiter().GetResult();
       }
       catch (AggregateException ex)
       {
@@ -473,6 +477,8 @@ namespace Csla
     }
 
     /// <inheritdoc />
+    /// WARNING: This method uses blocking async (.Result) which can cause deadlocks in cloud environments.
+    /// For cloud deployments, prefer using UpdateAsync() instead.
     public T Update(T obj)
     {
       if (obj is null)
@@ -480,7 +486,7 @@ namespace Csla
 
       try
       {
-        return DoUpdateAsync(obj, true).Result;
+        return DoUpdateAsync(obj, true).ConfigureAwait(false).GetAwaiter().GetResult();
       }
       catch (AggregateException ex)
       {
@@ -583,9 +589,11 @@ namespace Csla
     }
 
     /// <inheritdoc />
+    /// WARNING: This method uses blocking async (.Result) which can cause deadlocks in cloud environments.
+    /// For cloud deployments, prefer using ExecuteAsync() instead.
     public T Execute(params object?[]? criteria)
     {
-      return (T)DoFetchAsync(typeof(T), Server.DataPortal.GetCriteriaFromArray(criteria), true).Result;
+      return (T)DoFetchAsync(typeof(T), Server.DataPortal.GetCriteriaFromArray(criteria), true).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     /// <inheritdoc />
