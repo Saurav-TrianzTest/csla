@@ -13,6 +13,9 @@ namespace Csla.Web
   /// <summary>
   /// Application context manager that uses HttpContext
   /// to store context values.
+  /// WARNING: This class uses legacy ASP.NET HttpContext.Current which is NOT cloud-compatible.
+  /// For cloud deployments, use ASP.NET Core with IHttpContextAccessor instead.
+  /// Consider migrating to Csla.AspNetCore.ApplicationContextManager for cloud environments.
   /// </summary>
   public class ApplicationContextManager : IContextManager
   {

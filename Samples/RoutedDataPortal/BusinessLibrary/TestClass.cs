@@ -10,7 +10,11 @@ namespace BusinessLibrary
     [Fetch]
     private void Fetch()
     {
-      CreatedFrom = $"{Environment.MachineName} - {ApplicationContext.LocalContext["dpv"]?.ToString()}";
+      var instanceId = Environment.GetEnvironmentVariable("INSTANCE_ID") ??
+                       Environment.GetEnvironmentVariable("HOSTNAME") ??
+                       Environment.GetEnvironmentVariable("COMPUTERNAME") ??
+                       "unknown-instance";
+      CreatedFrom = $"{instanceId} - {ApplicationContext.LocalContext["dpv"]?.ToString()}";
     }
   }
 }

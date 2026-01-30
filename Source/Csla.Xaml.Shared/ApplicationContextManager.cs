@@ -46,7 +46,11 @@ namespace Csla.Xaml
       if (_principal == null)
       {
 #if NET8_0_OR_GREATER
-        if (OperatingSystem.IsWindows() && !_securityOptions .FlowSecurityPrincipalFromClient)
+        // Use cloud-native authentication by default
+        // Windows Authentication is disabled for cloud compatibility
+        // Use ClaimsPrincipal with cloud identity providers (JWT, OAuth, AWS Cognito, etc.)
+        if (OperatingSystem.IsWindows() && !_securityOptions.FlowSecurityPrincipalFromClient &&
+            Environment.GetEnvironmentVariable("ENABLE_WINDOWS_AUTH") == "true")
           SetUser(new WindowsPrincipal(WindowsIdentity.GetCurrent()));
         else
           SetUser(new System.Security.Claims.ClaimsPrincipal());

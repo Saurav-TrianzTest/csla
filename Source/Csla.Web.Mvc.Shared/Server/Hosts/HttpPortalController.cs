@@ -74,8 +74,27 @@ namespace Csla.Server.Hosts
     /// Gets a dictionary containing the URLs for each
     /// data portal route, where each key is the
     /// routing tag identifying the route URL.
+    /// Initialized from environment variable ROUTING_TAG_URLS (format: tag1=url1;tag2=url2)
     /// </summary>
-    protected static Dictionary<string, string> RoutingTagUrls { get; set; } = [];
+    protected static Dictionary<string, string> RoutingTagUrls { get; set; } = InitializeRoutingTagUrls();
+
+    private static Dictionary<string, string> InitializeRoutingTagUrls()
+    {
+      var urls = new Dictionary<string, string>();
+      var envValue = Environment.GetEnvironmentVariable("ROUTING_TAG_URLS");
+      if (!string.IsNullOrEmpty(envValue))
+      {
+        foreach (var pair in envValue.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+          var parts = pair.Split('=', 2);
+          if (parts.Length == 2)
+          {
+            urls[parts[0].Trim()] = parts[1].Trim();
+          }
+        }
+      }
+      return urls;
+    }
 
     /// <summary>
     /// Gets or sets the HttpClient timeout

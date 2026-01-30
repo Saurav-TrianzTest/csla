@@ -15,9 +15,10 @@ namespace ProjectTracker.Configuration
     /// use Entity Framework with SQLite
     /// </summary>
     /// <param name="services"></param>
-    /// <param name="connectionString">SQLite connection string (defaults to Data Source=PTracker.db)</param>
-    public static void AddDalEfCore(this IServiceCollection services, string connectionString = "Data Source=PTracker.db")
+    /// <param name="connectionString">SQLite connection string (defaults to environment variable DATABASE_CONNECTION_STRING or Data Source=PTracker.db)</param>
+    public static void AddDalEfCore(this IServiceCollection services, string? connectionString = null)
     {
+      connectionString ??= Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING") ?? "Data Source=PTracker.db";
       services.AddDbContext<PTrackerContext>(options =>
         options.UseSqlite(connectionString));
       services.AddTransient<IAssignmentDal, AssignmentDal>();

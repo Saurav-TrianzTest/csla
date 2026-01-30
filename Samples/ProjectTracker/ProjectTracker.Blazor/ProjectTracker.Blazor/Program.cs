@@ -33,8 +33,11 @@ builder.Services.AddCsla(o => o
 // Use in-memory mock database DAL
 //builder.Services.AddDalMock();
 
-// Use SQLite-backed EF Core DAL
-builder.Services.AddDalEfCore("Data Source=PTracker.db");
+// Use SQLite-backed EF Core DAL with cloud-compatible configuration
+// Database path from environment variable or default to relative path
+var dbPath = Environment.GetEnvironmentVariable("DATABASE_PATH") ??
+             Path.Combine(Environment.GetEnvironmentVariable("DATA_DIRECTORY") ?? Directory.GetCurrentDirectory(), "PTracker.db");
+builder.Services.AddDalEfCore($"Data Source={dbPath}");
 
 var app = builder.Build();
 

@@ -30,9 +30,23 @@ namespace Csla.Windows
         if (_securityOptions.FlowSecurityPrincipalFromClient)
           SetUser(new System.Security.Claims.ClaimsPrincipal());
         else
+        {
+          // Use platform-compatible identity for cloud environments (Linux)
+          if (OperatingSystem.IsWindows())
+          {
 #pragma warning disable CA1416 // Validate platform compatibility
-          SetUser(new WindowsPrincipal(WindowsIdentity.GetCurrent()));
+            SetUser(new WindowsPrincipal(WindowsIdentity.GetCurrent()));
 #pragma warning restore CA1416 // Validate platform compatibility
+          }
+          else
+          {
+            // For Linux/cloud environments, use ClaimsPrincipal with environment-based identity
+            var identity = new System.Security.Claims.ClaimsIdentity("CloudPrincipal");
+            var userName = Environment.GetEnvironmentVariable("APP_USER") ?? Environment.UserName;
+            identity.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, userName));
+            SetUser(new System.Security.Claims.ClaimsPrincipal(identity));
+          }
+        }
       }
       return _principal;
     }

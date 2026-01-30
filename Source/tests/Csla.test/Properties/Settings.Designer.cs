@@ -26,11 +26,21 @@ namespace Csla.Test.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\DataPortalTestDatabase." +
-            "mdf;Integrated Security=True;User Instance=True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string DataPortalTestDatabaseConnectionString {
             get {
-                return ((string)(this["DataPortalTestDatabaseConnectionString"]));
+                // Use environment variable for cloud compatibility
+                var envConnectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+                if (!string.IsNullOrEmpty(envConnectionString))
+                    return envConnectionString;
+
+                // Fallback to configuration value for local testing
+                var configValue = ((string)(this["DataPortalTestDatabaseConnectionString"]));
+                if (!string.IsNullOrEmpty(configValue))
+                    return configValue;
+
+                // Default for local testing only
+                return "Data Source=.\\SQLEXPRESS;AttachDbFilename=|DataDirectory|\\DataPortalTestDatabase.mdf;Integrated Security=True;User Instance=True";
             }
         }
     }

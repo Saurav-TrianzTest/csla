@@ -12,7 +12,7 @@ namespace Csla.Testing.Business.ReadOnlyTest
   [Serializable]
   public partial class ReadOnlyPerson : ReadOnlyBase<ReadOnlyPerson>
   {
-    public const string DataPortalUrl = "http://localhost:4832/WcfPortal.svc";
+    public static readonly string DataPortalUrl = Environment.GetEnvironmentVariable("DATA_PORTAL_URL") ?? "http://localhost:4832/WcfPortal.svc";
     
     //public ReadOnlyPerson() { }
 

@@ -26,7 +26,7 @@ builder.Services.AddCsla(o => o
 //for EF Db
 //builder.Services.AddTransient(typeof(DataAccess.IPersonDal), typeof(DataAccess.EF.PersonEFDal));
 //builder.Services.AddDbContext<DataAccess.EF.PersonDbContext>(
-//options => options.UseSqlServer("Server=servername;Database=personDB;User ID=sa; Password=pass;Trusted_Connection=True;MultipleActiveResultSets=true"));
+//options => options.UseSqlServer(builder.Configuration.GetConnectionString("PersonDB") ?? throw new InvalidOperationException("Connection string 'PersonDB' not found.")));
 
 // for Mock Db
 builder.Services.AddTransient(typeof(DataAccess.IPersonDal), typeof(DataAccess.Mock.PersonDal));

@@ -34,7 +34,14 @@ namespace Csla.Test.SourceLink
     {
       byte[] searchBytes = Encoding.UTF8.GetBytes("https://raw.githubusercontent.com");
 
-      var symbolFiles = Directory.GetFiles("..\\..\\..\\..\\Bin\\Release", "*.pdb", SearchOption.AllDirectories);
+      var basePath = Environment.GetEnvironmentVariable("PDB_SEARCH_PATH") ?? Path.Combine(Directory.GetCurrentDirectory(), "../../../../Bin/Release");
+      if (!Directory.Exists(basePath))
+      {
+        Assert.Inconclusive($"PDB search path does not exist: {basePath}");
+        return;
+      }
+
+      var symbolFiles = Directory.GetFiles(basePath, "*.pdb", SearchOption.AllDirectories);
       foreach (var path in symbolFiles)
       {
         byte[] fileData = File.ReadAllBytes(path);

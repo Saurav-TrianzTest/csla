@@ -39,8 +39,9 @@ public class HttpProxyTests
   [TestMethod]
   public async Task GetHttpClientHandler_WhenOverriddenItShouldBeUsedWithinTheCreatedHttpClient()
   {
+    var testUrl = Environment.GetEnvironmentVariable("TEST_API_URL") ?? "http://localhost:1234/weatherForecast";
     using var createdHttpClient = _systemUnderTest.CreateHttpClient();
-    _ = await createdHttpClient.GetAsync("http://localhost:1234/weatherForecast");
+    _ = await createdHttpClient.GetAsync(testUrl);
     _testHttClientHandler.WasCalled.Should().BeTrue();
   }
 

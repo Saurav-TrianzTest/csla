@@ -30,11 +30,11 @@ namespace Csla.Core
     /// </summary>
     public bool IsValid => true;
 
-    private static IContextDictionary? _currentLocalContext = new ContextDictionary();
-    private static IContextDictionary? _currentClientContext = new ContextDictionary();
-    private static IPrincipal _currentPrincipal = new ClaimsPrincipal();
+    private static readonly AsyncLocal<IContextDictionary?> _currentLocalContext = new();
+    private static readonly AsyncLocal<IContextDictionary?> _currentClientContext = new();
+    private static readonly AsyncLocal<IPrincipal> _currentPrincipal = new();
     private static IServiceProvider? _currentDefaultServiceProvider;
-    private static IServiceProvider? _currentServiceProvider;
+    private static readonly AsyncLocal<IServiceProvider?> _currentServiceProvider = new();
 
     /// <summary>
     /// Gets the client context dictionary.
@@ -42,7 +42,7 @@ namespace Csla.Core
     /// <param name="executionLocation"></param>
     public IContextDictionary? GetClientContext(ApplicationContext.ExecutionLocations executionLocation)
     {
-      return _currentClientContext;
+      return _currentClientContext.Value ?? new ContextDictionary();
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ namespace Csla.Core
     /// </summary>
     public IContextDictionary? GetLocalContext()
     {
-      return _currentLocalContext;
+      return _currentLocalContext.Value ?? new ContextDictionary();
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ namespace Csla.Core
     /// <returns>The current user principal</returns>
     public IPrincipal GetUser()
     {
-      return _currentPrincipal;
+      return _currentPrincipal.Value ?? new ClaimsPrincipal();
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ namespace Csla.Core
     /// <param name="executionLocation"></param>
     public void SetClientContext(IContextDictionary? clientContext, ApplicationContext.ExecutionLocations executionLocation)
     {
-      _currentClientContext = clientContext;
+      _currentClientContext.Value = clientContext;
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ namespace Csla.Core
     /// <param name="localContext">Context dictionary</param>
     public void SetLocalContext(IContextDictionary? localContext)
     {
-      _currentLocalContext = localContext;
+      _currentLocalContext.Value = localContext;
     }
 
     /// <summary>
@@ -104,7 +104,7 @@ namespace Csla.Core
     /// </summary>
     public IServiceProvider? GetServiceProvider()
     {
-      return _currentServiceProvider ?? GetDefaultServiceProvider();
+      return _currentServiceProvider.Value ?? GetDefaultServiceProvider();
     }
 
     /// <summary>
@@ -114,13 +114,13 @@ namespace Csla.Core
     /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
     public void SetServiceProvider(IServiceProvider scope)
     {
-      _currentServiceProvider = scope ?? throw new ArgumentNullException(nameof(scope));
+      _currentServiceProvider.Value = scope ?? throw new ArgumentNullException(nameof(scope));
     }
 
     /// <inheritdoc />
     public void SetUser(IPrincipal principal)
     {
-      _currentPrincipal = principal ?? throw new ArgumentNullException(nameof(principal));
+      _currentPrincipal.Value = principal ?? throw new ArgumentNullException(nameof(principal));
     }
 
     private static ApplicationContext? _applicationContext;

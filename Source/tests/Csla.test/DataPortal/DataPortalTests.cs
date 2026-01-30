@@ -43,21 +43,19 @@ namespace Csla.Test.DataPortal
     private static string CONNECTION_STRING = WellKnownValues.DataPortalTestDatabase;
     public void ClearDataBase()
     {
-      SqlConnection cn = new SqlConnection(CONNECTION_STRING);
-      SqlCommand cm = new SqlCommand("DELETE FROM Table2", cn);
-
-      try
+      // Use using statement for proper connection management and cloud compatibility
+      using (SqlConnection cn = new SqlConnection(CONNECTION_STRING))
+      using (SqlCommand cm = new SqlCommand("DELETE FROM Table2", cn))
       {
-        cn.Open();
-        cm.ExecuteNonQuery();
-      }
-      catch (Exception)
-      {
-        //do nothing
-      }
-      finally
-      {
-        cn.Close();
+        try
+        {
+          cn.Open();
+          cm.ExecuteNonQuery();
+        }
+        catch (Exception)
+        {
+          //do nothing
+        }
       }
     }
 
@@ -84,24 +82,21 @@ namespace Csla.Test.DataPortal
         throw;
       }
 
-      SqlConnection cn = new SqlConnection(CONNECTION_STRING);
-      SqlCommand cm = new SqlCommand("SELECT * FROM Table2", cn);
-
-      try
+      using (SqlConnection cn = new SqlConnection(CONNECTION_STRING))
+      using (SqlCommand cm = new SqlCommand("SELECT * FROM Table2", cn))
       {
-        cn.Open();
-        SqlDataReader dr = cm.ExecuteReader();
-
-        Assert.AreEqual(true, dr.HasRows);
-        dr.Close();
-      }
-      catch (Exception)
-      {
-        //do nothing
-      }
-      finally
-      {
-        cn.Close();
+        try
+        {
+          cn.Open();
+          using (SqlDataReader dr = cm.ExecuteReader())
+          {
+            Assert.AreEqual(true, dr.HasRows);
+          }
+        }
+        catch (Exception)
+        {
+          //do nothing
+        }
       }
 
       ClearDataBase();
@@ -122,21 +117,21 @@ namespace Csla.Test.DataPortal
         Assert.IsTrue(ex.Message.StartsWith("DataPortal.Update failed"), "Invalid exception message");
       }
 
-      try
+      using (SqlConnection cn2 = new SqlConnection(CONNECTION_STRING))
+      using (SqlCommand cm2 = new SqlCommand("SELECT * FROM Table2", cn2))
       {
-        cn.Open();
-        SqlDataReader dr = cm.ExecuteReader();
-
-        Assert.AreEqual(false, dr.HasRows);
-        dr.Close();
-      }
-      catch (Exception)
-      {
-        //do nothing
-      }
-      finally
-      {
-        cn.Close();
+        try
+        {
+          cn2.Open();
+          using (SqlDataReader dr = cm2.ExecuteReader())
+          {
+            Assert.AreEqual(false, dr.HasRows);
+          }
+        }
+        catch (Exception)
+        {
+          //do nothing
+        }
       }
 
       ClearDataBase();

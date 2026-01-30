@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,11 +14,11 @@ namespace RoutedDataPortal.Controllers
   [ApiController]
   public class DataPortalController : Csla.Server.Hosts.HttpPortalController
   {
-    public DataPortalController(ApplicationContext applicationContext)
+    public DataPortalController(ApplicationContext applicationContext, IConfiguration configuration)
       : base(applicationContext)
     {
-      RoutingTagUrls["-v1"] = "http://localhost:64897/api/DataPortal";
-      RoutingTagUrls["-v2"] = "http://localhost:64903/api/DataPortal";
+      RoutingTagUrls["-v1"] = configuration["DataPortal:RoutingUrlV1"] ?? "http://localhost:64897/api/DataPortal";
+      RoutingTagUrls["-v2"] = configuration["DataPortal:RoutingUrlV2"] ?? "http://localhost:64903/api/DataPortal";
       applicationContext.LocalContext.Add("dpv", "v0");
     }
 

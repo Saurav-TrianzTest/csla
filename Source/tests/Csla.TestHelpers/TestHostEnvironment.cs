@@ -32,7 +32,7 @@ namespace Csla.TestHelpers
     /// <summary>
     /// The path to the content root
     /// </summary>
-    public string ContentRootPath { get; set; } = @"C:\Windows\Temp";
+    public string ContentRootPath { get; set; } = Environment.GetEnvironmentVariable("CONTENT_ROOT_PATH") ?? Path.GetTempPath();
 
     /// <summary>
     /// The file provider to the content root; null by default

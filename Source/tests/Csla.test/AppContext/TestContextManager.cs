@@ -6,8 +6,7 @@ namespace Csla.Test.AppContext
 {
   public class TestContextManager : IContextManager
   {
-    [ThreadStatic]
-    private static IContextDictionary _myContext = new ContextDictionary();
+    private readonly AsyncLocal<IContextDictionary> _myContext = new();
     private readonly AsyncLocal<IPrincipal> _principal = new();
 
     private const string _localContextName = "Csla.ClientContext";
@@ -41,38 +40,50 @@ namespace Csla.Test.AppContext
 
     public IContextDictionary GetLocalContext()
     {
-      if (_myContext[_localContextName] == null)
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      if (_myContext.Value[_localContextName] == null)
         SetLocalContext(new ContextDictionary());
-      return (IContextDictionary)_myContext[_localContextName];
+      return (IContextDictionary)_myContext.Value[_localContextName];
     }
 
     public void SetLocalContext(IContextDictionary localContext)
     {
-      _myContext[_localContextName] = localContext;
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      _myContext.Value[_localContextName] = localContext;
     }
 
     public IContextDictionary GetClientContext(ApplicationContext.ExecutionLocations executionLocation)
     {
-      if (_myContext[_clientContextName] == null)
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      if (_myContext.Value[_clientContextName] == null)
         SetClientContext(new ContextDictionary(), executionLocation);
-      return (IContextDictionary) _myContext[_clientContextName];
+      return (IContextDictionary) _myContext.Value[_clientContextName];
     }
 
     public void SetClientContext(IContextDictionary clientContext, ApplicationContext.ExecutionLocations executionLocation)
     {
-      _myContext[_clientContextName] = clientContext;
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      _myContext.Value[_clientContextName] = clientContext;
     }
 
     public IContextDictionary GetGlobalContext()
     {
-      if (_myContext[_globalContextName] == null)
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      if (_myContext.Value[_globalContextName] == null)
         SetGlobalContext(new ContextDictionary());
-      return (ContextDictionary)_myContext[_globalContextName];
+      return (ContextDictionary)_myContext.Value[_globalContextName];
     }
 
     public void SetGlobalContext(IContextDictionary globalContext)
     {
-      _myContext[_globalContextName] = globalContext;
+      if (_myContext.Value == null)
+        _myContext.Value = new ContextDictionary();
+      _myContext.Value[_globalContextName] = globalContext;
     }
 
     private static IServiceProvider _provider;

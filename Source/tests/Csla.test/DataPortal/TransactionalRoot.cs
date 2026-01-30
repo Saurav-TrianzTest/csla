@@ -119,33 +119,36 @@ namespace Csla.Test.DataPortal
     [Transactional(TransactionalTypes.TransactionScope)]
     [Insert]
     protected void DataPortal_Insert()
-    { 
-      SqlConnection cn = new SqlConnection(WellKnownValues.DataPortalTestDatabase);
-      string firstName = FirstName;
-      string lastName = LastName;
-      string smallColumn = SmallColumn;
+    {
+      using (SqlConnection cn = new SqlConnection(WellKnownValues.DataPortalTestDatabase))
+      {
+        cn.Open();
+        string firstName = FirstName;
+        string lastName = LastName;
+        string smallColumn = SmallColumn;
 
-      //this command will always execute successfully
-      //since it inserts a string less than 5 characters
-      //into SmallColumn
-      SqlCommand cm1 = new SqlCommand();
-      cm1.Connection = cn;
-      cm1.CommandText = "INSERT INTO Table2(FirstName, LastName, SmallColumn) VALUES('Bill', 'Thompson', 'abc')";
+        //this command will always execute successfully
+        //since it inserts a string less than 5 characters
+        //into SmallColumn
+        using (SqlCommand cm1 = new SqlCommand("INSERT INTO Table2(FirstName, LastName, SmallColumn) VALUES('Bill', 'Thompson', 'abc')", cn))
+        {
+          cm1.ExecuteNonQuery();
+        }
 
-      //this command will throw an exception
-      //if SmallColumn is set to a string longer than 
-      //5 characters
-      SqlCommand cm2 = new SqlCommand();
-      cm2.Connection = cn;
-      //use stringbuilder
-      cm2.CommandText = "INSERT INTO Table2(FirstName, LastName, SmallColumn) VALUES('";
-      cm2.CommandText += firstName;
-      cm2.CommandText += "', '" + lastName + "', '" + smallColumn + "')";
-
-      cn.Open();
-      cm1.ExecuteNonQuery();
-      cm2.ExecuteNonQuery();
-      cn.Close();
+        //this command will throw an exception
+        //if SmallColumn is set to a string longer than
+        //5 characters
+        using (SqlCommand cm2 = new SqlCommand())
+        {
+          cm2.Connection = cn;
+          //use parameterized queries to prevent SQL injection
+          cm2.CommandText = "INSERT INTO Table2(FirstName, LastName, SmallColumn) VALUES(@FirstName, @LastName, @SmallColumn)";
+          cm2.Parameters.AddWithValue("@FirstName", firstName);
+          cm2.Parameters.AddWithValue("@LastName", lastName);
+          cm2.Parameters.AddWithValue("@SmallColumn", smallColumn);
+          cm2.ExecuteNonQuery();
+        }
+      }
 
       TestResults.Reinitialise();
       TestResults.Add("TransactionalRoot", "Inserted");
